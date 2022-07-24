@@ -55,22 +55,23 @@ fn build_tree(path: &str, dirlist: &mut DirectoryInfo) {
         let last_modified = datetime.format("%d/%m/%Y %T").to_string();
         let item_len = item_meta.len().try_into().unwrap();
 
-        if item_meta.is_file() {
-            cvec.push(Box::new(DirectoryInfo {
+        match item_meta.is_file() {
+            true => cvec.push(Box::new(DirectoryInfo {
                 name: current_filename.clone(),
                 meta: Some(ItemMetaData::new(last_modified, false, item_len)),
                 children: Vec::new(),
-            }));
-        } else {
-            let mut newdir = DirectoryInfo::new(
-                current_filename.as_ref(),
-                Some(ItemMetaData::new(last_modified, true, item_len)),
-            );
-            build_tree(
-                format!("{}/{}", path, current_filename).as_ref(),
-                &mut newdir,
-            );
-            cvec.push(Box::new(newdir));
+            })),
+            false => {
+                let mut newdir = DirectoryInfo::new(
+                    current_filename.as_ref(),
+                    Some(ItemMetaData::new(last_modified, true, item_len)),
+                );
+                build_tree(
+                    format!("{}/{}", path, current_filename).as_ref(),
+                    &mut newdir,
+                );
+                cvec.push(Box::new(newdir));
+            }
         }
     });
 
